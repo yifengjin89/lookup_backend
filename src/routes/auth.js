@@ -7,7 +7,7 @@ const validate = require('../middlewares/validate');
 
 const router = express.Router();
 
-const header = {"Content-Type": "application/json", "Accept":"application/vnd.heroku+json; version=3"}
+const header = {"Content-Type": "application/json", Accept:"application/vnd.heroku+json; version=3"}
 
 
 router.get('/', (req, res) => {
