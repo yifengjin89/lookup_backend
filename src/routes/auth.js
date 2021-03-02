@@ -7,7 +7,8 @@ const validate = require('../middlewares/validate');
 
 const router = express.Router();
 
-const header = {"Content-Type": "application/json", Accept:"application/vnd.heroku+json; version=3"}
+const headers = new Headers({"Content-Type": "application/json", Accept:"application/vnd.heroku+json; version=3"})
+let option = {headers: headers}
 
 
 router.get('/', (req, res) => {
@@ -19,7 +20,7 @@ router.post('/register', [
     check('password').not().isEmpty().isLength({min: 6}).withMessage('Must be at least 6 chars long'),
     check('firstName').not().isEmpty().withMessage('You first name is required'),
     check('lastName').not().isEmpty().withMessage('You last name is required')
-], validate, Auth.register, headers = header);
+], validate, Auth.register, option);
 
 router.post("/login", [
     check('email').isEmail().withMessage('Enter a valid email address'),
