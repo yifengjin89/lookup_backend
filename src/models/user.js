@@ -24,25 +24,50 @@ const UserSchema = new mongoose.Schema({
     password: {
         type: String,
         required: 'Your password is required',
-        max: 100
+        max: 20
     },
 
     firstName: {
         type: String,
         required: 'First Name is required',
-        max: 100
+        max: 20
     },
 
     lastName: {
         type: String,
         required: 'Last Name is required',
-        max: 100
+        max: 20
     },
 
-    bio: {
+    // bio: {
+    //     type: String,
+    //     required: false,
+    //     max: 255
+    // },
+
+    role: {
         type: String,
-        required: false,
-        max: 255
+        max: 30
+    },
+
+    institute: {
+        type: String,
+        max: 30
+    },
+
+    major: {
+        type: String,
+        max: 30
+    },
+
+    grade: {
+        type: String,
+        max: 30
+    },
+
+    skills: {
+        type: Map,
+        of: String,
     },
 
     profileImage: {
