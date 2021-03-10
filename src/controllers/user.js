@@ -79,7 +79,16 @@ exports.update = async function (req, res) {
         //Make sure the passed id is that of the logged in user
         if (userId.toString() !== id.toString()) return res.status(401).json({message: "Sorry, you don't have the permission to upd this data."});
 
+        for (let i = 1; i < 4; i++ ) {
+            if (req.body.skills_name_[i] && req.body.skills_value_[i]) {
+                const skills = await User.skills.set(req.body.skills_name_[i], req.body.skills_value_[i])
+                const user_skills = await User.findByIdAndUpdate(id, {$set: skills}, {new: true});
+            }   
+        }
+
+
         const user = await User.findByIdAndUpdate(id, {$set: update}, {new: true});
+
 
         //if there is no image, return success message
         if (!req.file) return res.status(200).json({user, message: 'User has been updated'});
