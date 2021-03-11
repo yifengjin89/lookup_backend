@@ -75,21 +75,33 @@ exports.update = async function (req, res) {
         const update = req.body;
         const id = req.params.id;
         const userId = req.user._id;
-
+        let skills = [];
+      
         //Make sure the passed id is that of the logged in user
         if (userId.toString() !== id.toString()) return res.status(401).json({message: "Sorry, you don't have the permission to upd this data."});
+        
+        if (req.body.skills) {
+            let skill = req.body.skills;
+            let ranking = req.body.rank;
 
-        for (let i = 1; i < 4; i++ ) {
-            if (req.body.skills_name_[i] && req.body.skills_value_[i]) {
-                const skills = await User.skills.set(req.body.skills_name_[i], req.body.skills_value_[i])
-                const user_skills = await User.findByIdAndUpdate(id, {$set: skills}, {new: true});
-            }   
+            for (let i = 0; i < req.body.skills.length; i++) {
+               skills.push({
+                    name: skill[i],
+                    rank: Number(ranking[i])
+               });
+            }
+            delete update.skills;
+            delete update.rank;
+            update['skills'] = skills
         }
-
-
+        
         const user = await User.findByIdAndUpdate(id, {$set: update}, {new: true});
-
-
+        // const re = await User.find({'skills.name':{$regex:'p', $options:'$i'}}).
+        //                     select  ('_id username').
+        //                     sort('-skills.rank');
+        // console.log('r', re)
+        // console.log('res', re[1].skills[0].name)
+ 
         //if there is no image, return success message
         if (!req.file) return res.status(200).json({user, message: 'User has been updated'});
 
@@ -103,6 +115,17 @@ exports.update = async function (req, res) {
         res.status(500).json({message: error.message});
     }
 };
+
+// exports.search = async function (req, res) {
+//     try {
+//         const keyword = req.body.keyword;
+
+//         const results = await User.find(skills)
+
+//     }
+// };
+
+
 
 // @route DESTROY api/user/{id}
 // @desc Delete User
