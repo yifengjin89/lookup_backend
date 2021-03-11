@@ -4,6 +4,7 @@ const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
 
 const Token = require('../models/token');
+const { NONAME } = require('dns');
 
 const UserSchema = new mongoose.Schema({
     email: {
@@ -65,10 +66,10 @@ const UserSchema = new mongoose.Schema({
         max: 30
     },
 
-    skills: {
-        type: Map,
-        of: String,
-    },
+    skills: [{
+        name: String,
+        rank: Number,
+    }],
 
     profileImage: {
         type: String,
