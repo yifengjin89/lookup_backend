@@ -160,10 +160,6 @@ exports.search = async function (req, res) {
             console.log(typeof(results[i].geoPoint[0]));
         }
         console.log('results++++', results)
-
-        // console.log('results', results)
-        // let a = JSON.stringify(results)
-        // console.log('new a', a);
         
         // return results by ranking desc order
         if (method == 'ranking') {
@@ -184,17 +180,7 @@ exports.search = async function (req, res) {
                 return b.ranking - a.ranking;
             })
 
-            // let results_by_ranking = results.sort((a, b) => {
-            //     for (let i = 0; i < results.length; i++) {
-            //         for (let j = 0; j < skills_length; j++) {
-            //             if (results[i].skills[j].name.toLowerCase() == keyword.toLowerCase()) {
-            //                 results[i].skills[0] = results[i].skills[j].rank; 
-            //             }
-            //         }   
-            //     }
-    
-            //     return b.skills[0] - a.skills[0]
-            // })
+            console.log('results_by_ranking', results_by_ranking)
             res.status(200).json({results_by_ranking});
 
         // return results by distance in meters asc order

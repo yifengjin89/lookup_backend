@@ -29,6 +29,8 @@ router.put('/:id', upload, User.update);
 //SEARCH
 router.post('/:id/search', User.search);
 
+//SEARCH RESULT
+
 //DELETE
 router.delete('/:id', User.destroy);
 
