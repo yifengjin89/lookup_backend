@@ -77,6 +77,10 @@ const UserSchema = new mongoose.Schema({
         max: 255
     },
 
+    geoPoint: {
+        type: Array,
+    },
+        
     isVerified: {
         type: Boolean,
         default: false
