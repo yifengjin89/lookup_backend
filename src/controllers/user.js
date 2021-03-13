@@ -83,7 +83,7 @@ exports.update = async function (req, res) {
         if (req.body.skills) {
             let skill = req.body.skills;
             let ranking = req.body.rank;
-
+        
             for (let i = 0; i < req.body.skills.length; i++) {
                skills.push({
                     name: skill[i],
@@ -96,12 +96,7 @@ exports.update = async function (req, res) {
         }
         
         const user = await User.findByIdAndUpdate(id, {$set: update}, {new: true});
-        // const re = await User.find({'skills.name':{$regex:'p', $options:'$i'}}).
-        //                     select  ('_id username').
-        //                     sort('-skills.rank');
-        // console.log('r', re)
-        // console.log('res', re[1].skills[0].name)
- 
+        
         //if there is no image, return success message
         if (!req.file) return res.status(200).json({user, message: 'User has been updated'});
 
@@ -109,21 +104,117 @@ exports.update = async function (req, res) {
         const result = await uploader(req);
         const user_ = await User.findByIdAndUpdate(id, {$set: update}, {$set: {profileImage: result.url}}, {new: true});
 
-        if (!req.file) return res.status(200).json({user: user_, message: 'User has been updated'});
+        if (!req.file) return res.status(401).json({user: user_, message: 'User has been updated'});
 
     } catch (error) {
         res.status(500).json({message: error.message});
     }
 };
 
-// exports.search = async function (req, res) {
-//     try {
-//         const keyword = req.body.keyword;
+exports.search = async function (req, res) {
+    try {
+        const keyword = req.body.keyword;
+        const method = req.body.method;
+        const user_id = req.params.id
+        console.log('user_id', user_id)
+        // total 3 skills per user have
+        const skills_length = 3;
+        // {$regex: keyword, $options:'$i'}
+        const results = await User.find({'skills.name':{$regex: new RegExp(`^${keyword}$`), $options:'$i'}}).
+                                select ('_id username skills.name skills.rank geoPoint').lean();
 
-//         const results = await User.find(skills)
+        console.log('res： ', results)
+        
+        function degreesToRadians(degrees) {
+            return degrees * Math.PI / 180;
+        }
+          
+        function distanceInMBetweenEarthCoordinates(lat1, lon1, lat2, lon2) {
+            var earthRadiusKm = 6371;
+            
+            var dLat = degreesToRadians(lat2-lat1);
+            var dLon = degreesToRadians(lon2-lon1);
+            
+            lat1 = degreesToRadians(lat1);
+            lat2 = degreesToRadians(lat2);
+            
+            var a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+                    Math.sin(dLon/2) * Math.sin(dLon/2) * Math.cos(lat1) * Math.cos(lat2); 
+            var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)); 
+            
+            return Math.round(earthRadiusKm * c * 1000);
+        }
+        //  distance display in meters
+        console.log('distance: ', distanceInMBetweenEarthCoordinates(37.75803, -122.39449, 37.75840, -122.38758))  
 
-//     }
-// };
+        // new result
+        // let new_results = results.filter(item => item._id != user_id)
+        // console.log('new result:' , new_results)
+
+
+        if(results.length === 0) {
+            return res.status(401).json({message: 'Not Matched'});
+        }
+        
+        for (let i = 0; i < results.length; i++) {
+            console.log(typeof(results[i].geoPoint[0]));
+        }
+        console.log('results++++', results)
+        
+        // return results by ranking desc order
+        if (method == 'ranking') {
+            let ranking = [];
+            let results_by_ranking = [];
+            for (let i = 0; i < results.length; i++) {
+                for (let j = 0; j < skills_length; j++) {
+                    if (results[i].skills[j].name.toLowerCase() == keyword.toLowerCase()) {
+                        ranking.push(results[i].skills[j].rank)
+                    }
+                }  
+            }
+            results.map(((item, index) => {
+                results_by_ranking.push(Object.assign({}, item, {ranking: ranking[index]}))
+            }))
+
+            results_by_ranking.sort((a, b) => {
+                return b.ranking - a.ranking;
+            })
+
+            console.log('results_by_ranking', results_by_ranking)
+            res.status(200).json({results_by_ranking});
+
+        // return results by distance in meters asc order
+        } else {
+            const user_geoPoint = await User.findById(user_id).select('geoPoint');
+            console.log('user_geoPoint', user_geoPoint)
+            let user_lat = Number(user_geoPoint.geoPoint[0]);
+            let user_lon = Number(user_geoPoint.geoPoint[1]);
+            let distance = [];
+            let results_by_distance = [];
+
+            // calculate distance between current user and other users
+            for (let i = 0; i < results.length; i++) {
+                let other_user_lat = Number(results[i].geoPoint[0])
+                let other_user_lon = Number(results[i].geoPoint[1])
+                distance.push(distanceInMBetweenEarthCoordinates(user_lat, user_lon, other_user_lat, other_user_lon))
+            }
+            console.log('dis', distance)
+            results.map(((item, index) => {
+                results_by_distance.push(Object.assign({}, item, {distance: distance[index]}))
+            }))
+            console.log('before sort results_by_distance', results_by_distance);
+        
+            results_by_distance.sort((a, b) => {
+                return a.distance - b.distance;
+            })
+            console.log('after sort results_by_distance', results_by_distance);
+            res.status(200).json({results_by_distance});
+        }
+
+    } catch (error) {
+        res.status(500).json({message: error.message});
+    }
+};
 
 
 
