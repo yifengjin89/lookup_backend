@@ -10,7 +10,7 @@ const router = express.Router();
 const upload = multer().single('profileImage');
 
 //INDEX
-router.get('/', User.index);
+// router.get('/', User.index);
 
 //STORE
 router.post('/', [
@@ -21,7 +21,7 @@ router.post('/', [
 ], validate, User.store);
 
 //SHOW
-router.get('/:id',  User.show);
+// router.get('/:id',  User.show);
 
 //UPDATE
 router.put('/:id', upload, User.update);

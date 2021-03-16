@@ -76,6 +76,7 @@ exports.update = async function (req, res) {
         const id = req.params.id;
         const userId = req.user._id;
         let skills = [];
+        console.log('req.body', req.body)
       
         //Make sure the passed id is that of the logged in user
         if (userId.toString() !== id.toString()) return res.status(401).json({message: "Sorry, you don't have the permission to upd this data."});
@@ -102,6 +103,7 @@ exports.update = async function (req, res) {
 
         //Attempt to upload to cloudinary
         const result = await uploader(req);
+        console.log('res11111111111111111111111111111', result)
         const user_ = await User.findByIdAndUpdate(id, {$set: update}, {$set: {profileImage: result.url}}, {new: true});
 
         if (!req.file) return res.status(401).json({user: user_, message: 'User has been updated'});
