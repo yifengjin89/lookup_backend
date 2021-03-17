@@ -1,16 +1,15 @@
 const express = require('express');
 const {check} = require('express-validator');
-const multer = require('multer');
-
 const User = require('../controllers/user');
 const validate = require('../middlewares/validate');
 
 const router = express.Router();
 
-const upload = multer().single('profileImage');
+const upload = require('../utils/multer');
+
 
 //INDEX
-// router.get('/', User.index);
+router.get('/', User.index);
 
 //STORE
 router.post('/', [
@@ -21,10 +20,10 @@ router.post('/', [
 ], validate, User.store);
 
 //SHOW
-// router.get('/:id',  User.show);
+router.get('/:id',  User.show);
 
 //UPDATE
-router.put('/:id', upload, User.update);
+router.put('/:id', upload.single('profileImage'),  User.update);
 
 //SEARCH
 router.post('/:id/search', User.search);

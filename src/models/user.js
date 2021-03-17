@@ -40,12 +40,6 @@ const UserSchema = new mongoose.Schema({
         max: 20
     },
 
-    // bio: {
-    //     type: String,
-    //     required: false,
-    //     max: 255
-    // },
-
     role: {
         type: String,
         max: 30
@@ -75,6 +69,10 @@ const UserSchema = new mongoose.Schema({
         type: String,
         required: false,
         max: 255
+    },
+
+    cloudinary_id: {
+        type: String,
     },
 
     geoPoint: {
