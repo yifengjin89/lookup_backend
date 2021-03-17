@@ -1,5 +1,7 @@
 const User = require('../models/user');
-const {uploader, sendEmail} = require('../utils/index');
+const {sendEmail} = require('../utils/index');
+const upload = require('../utils/multer');
+const cloudinary = require('../config/cloudinary');
 
 // @route GET admin/user
 // @desc Returns all users
@@ -77,19 +79,20 @@ exports.update = async function (req, res) {
         const userId = req.user._id;
         let skills = [];
         console.log('req.body', req.body)
-      
+    
         //Make sure the passed id is that of the logged in user
         if (userId.toString() !== id.toString()) return res.status(401).json({message: "Sorry, you don't have the permission to upd this data."});
         
+        // replace the skills and rank into update data
         if (req.body.skills) {
             let skill = req.body.skills;
             let ranking = req.body.rank;
         
             for (let i = 0; i < req.body.skills.length; i++) {
-               skills.push({
+                skills.push({
                     name: skill[i],
                     rank: Number(ranking[i])
-               });
+                });
             }
             delete update.skills;
             delete update.rank;
@@ -98,15 +101,25 @@ exports.update = async function (req, res) {
         
         const user = await User.findByIdAndUpdate(id, {$set: update}, {new: true});
         
-        //if there is no image, return success message
+        // if there is no image, return success message
         if (!req.file) return res.status(200).json({user, message: 'User has been updated'});
+       
+        // upload profileImage to cloudinary
 
-        //Attempt to upload to cloudinary
-        const result = await uploader(req);
-        console.log('res11111111111111111111111111111', result)
-        const user_ = await User.findByIdAndUpdate(id, {$set: update}, {$set: {profileImage: result.url}}, {new: true});
+        // if exist profileImage, destroy and upload new
+        if (user.cloudinary_id) {
+            await cloudinary.uploader.destroy(user.cloudinary_id);
+        }
 
-        if (!req.file) return res.status(401).json({user: user_, message: 'User has been updated'});
+        // upload and get response
+        const result = await cloudinary.uploader.upload(req.file.path);
+        update['profileImage'] = result.secure_url || user.profileImage;
+        update['cloudinary_id'] = result.public_id || user.cloudinary_id;
+
+        // update datebase
+        const user_ = await User.findByIdAndUpdate(id, {$set: update}, {new: true});
+
+        return res.status(401).json({user: user_, message: 'User has been updated'});
 
     } catch (error) {
         res.status(500).json({message: error.message});
