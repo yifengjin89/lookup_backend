@@ -78,7 +78,13 @@ const UserSchema = new mongoose.Schema({
     geoPoint: {
         type: Array,
     },
-        
+
+    friendList: [{
+        id: String,
+        username: String,
+        image: String,
+    }],
+ 
     isVerified: {
         type: Boolean,
         default: false

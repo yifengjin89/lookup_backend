@@ -1,5 +1,6 @@
 const User = require('../models/user');
-const {sendEmail} = require('../utils/index');
+const Message = require('../models/message');
+const { distanceInMBetweenEarthCoordinates, sendEmail} = require('../utils/index');
 const upload = require('../utils/multer');
 const cloudinary = require('../config/cloudinary');
 
@@ -69,6 +70,106 @@ exports.show = async function (req, res) {
     }
 };
 
+// @route PUT api/user/{id}/updateGeoPoint
+// desc Update user GeoPoint
+// @access Public
+exports.updateGeoPoint = async function (req, res) {
+    try {
+        const id = req.params.id;
+        const geoPoint = req.body
+        // console.log('geoPoint==========')
+        // console.log(geoPoint)
+        // console.log(id)
+        
+        const user = await User.findByIdAndUpdate(id, {$set: geoPoint}, {new: true});
+        
+        res.status(200).json({user, message: 'User has been updated'});
+
+    } catch (error) {
+        res.status(500).json({message: error.message});
+    }
+};
+
+// @route post api/user/{id}/sendFriendRequst
+// desc Send friend request
+// @access Public
+exports.sendRequest = async function (req, res) {
+    try {
+        // message from id
+        const from_userId = req.params.id;
+
+        // message to id
+        const to_userId = req.body.to_userId;
+
+        const request = req.body.request;
+
+        if (request == 'friend') {
+            // if the user(a) already sent a friend request to the user(b), and status is: 'Pending',
+            // return message: 'Already sent Friend Request, Please wait for the response' and exit function.
+            const exist_request = await Message.find({'from_userId': from_userId, 'to_userId': to_userId, 'msgType': request, 'status': 'Pending'});
+
+            console.log('exist', exist_request)
+            console.log('length', exist_request.length);
+           
+            if (exist_request.length != 0) return res.status(200).json({message: 'Already sent Friend Request, Please wait for the response'});
+
+            // otherwise, find user info
+            const user = await User.findById(from_userId).select('username profileImage');
+        
+            const message = {
+                from_userId: from_userId,
+                to_userId: to_userId,
+                from_username: user.username, 
+                msgType: request,
+                from_profileImage: user.profileImage,
+            }
+
+            // if requested user id not in 'send friend request', create friend request to database
+            const reqMessage = await Message.create(message);
+
+            console.log('reqMessage ==========');
+            console.log(reqMessage);
+
+            // const user = await User.findById(id);
+            return res.status(200).json({reqMessage, message: 'Friend Request has been sent !'});
+        }
+
+        // if request == 'tutorial' ...
+
+    } catch (error) {
+        res.status(500).json({message: error.message});
+    }
+};
+
+// @route POST api/user/{id}/response
+// @desc response message from other users
+// @access Public
+exports.response = async function (req, res) {
+    try {
+        const id = req.params.id;
+        const msgType = req.body.type;
+        const response = req.body.response;
+        const requestId = req.body.requestId;
+
+        const message = await User.findOne({'message._id': requestId}).select('message');
+        console.log('message==============', message);
+
+        return res.status(200).json({message: 'Receive'});
+        if (msgType == 'friendRequest' && response == 'Approve') {
+
+
+        }
+
+        if (msgType == 'friendRequest' && response == 'Reject') {
+
+        }
+
+
+    } catch (error) {
+        res.status(500).json({message: error.message});
+    }
+}
+
 // @route PUT api/user/{id}
 // @desc Update user details
 // @access Public
@@ -99,6 +200,7 @@ exports.update = async function (req, res) {
             update['skills'] = skills
         }
         
+        console.log('update type', typeof(update))
         const user = await User.findByIdAndUpdate(id, {$set: update}, {new: true});
         
         // if there is no image, return success message
@@ -140,25 +242,6 @@ exports.search = async function (req, res) {
 
         console.log('res： ', results)
         
-        function degreesToRadians(degrees) {
-            return degrees * Math.PI / 180;
-        }
-          
-        function distanceInMBetweenEarthCoordinates(lat1, lon1, lat2, lon2) {
-            var earthRadiusKm = 6371;
-            
-            var dLat = degreesToRadians(lat2-lat1);
-            var dLon = degreesToRadians(lon2-lon1);
-            
-            lat1 = degreesToRadians(lat1);
-            lat2 = degreesToRadians(lat2);
-            
-            var a = Math.sin(dLat/2) * Math.sin(dLat/2) +
-                    Math.sin(dLon/2) * Math.sin(dLon/2) * Math.cos(lat1) * Math.cos(lat2); 
-            var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)); 
-            
-            return Math.round(earthRadiusKm * c * 1000);
-        }
         //  distance display in meters
         console.log('distance: ', distanceInMBetweenEarthCoordinates(37.75803, -122.39449, 37.75840, -122.38758))  
 
@@ -230,7 +313,6 @@ exports.search = async function (req, res) {
         res.status(500).json({message: error.message});
     }
 };
-
 
 
 // @route DESTROY api/user/{id}
