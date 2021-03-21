@@ -1,4 +1,5 @@
 const User = require('../models/user');
+const Message = require('../models/message');
 const Token = require('../models/token');
 const {sendEmail} = require('../utils/index');
 
@@ -32,7 +33,7 @@ exports.login = async (req, res) => {
     try {
         const { email, password } = req.body;
 
-        const user = await User.findOne({ email });
+        const user = await User.findOne({ email }).populate({path:'messages', select: 'status from_userId from_username msgType from_profileImage createdAt'});;
 
         if (!user) return res.status(401).json({msg: 'The email address ' + email + ' is not associated with any account. Double-check your email address and try again.'});
 
@@ -40,8 +41,9 @@ exports.login = async (req, res) => {
         if (!user.comparePassword(password)) return res.status(401).json({message: 'Invalid email or password'});
 
         // Make sure the user has been verified
-        if (!user.isVerified) return res.status(401).json({ type: 'not-verified', message: 'Your account has not been verified.' });
+        if (!user.isVerified) return res.status(401).json({ type: 'not-verified', message: 'Your account has not been verified.' });        
 
+        // console.log(JSON.stringify(user));
         // Login successful, write token, and send back user
         res.status(200).json({token: user.generateJWT(), user: user});
     } catch (error) {

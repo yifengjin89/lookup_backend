@@ -79,6 +79,11 @@ const UserSchema = new mongoose.Schema({
         type: Array,
     },
 
+    messages: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Message',
+    }],
+
     friendList: [{
         id: String,
         username: String,

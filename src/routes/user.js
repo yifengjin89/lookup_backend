@@ -31,12 +31,6 @@ router.put('/:id/updateGeoPoint', User.updateGeoPoint);
 //SEARCH
 router.post('/:id/search', User.search);
 
-//SEND FRIEND / TUTOR REQUEST
-router.post('/:id/sendRequest', User.sendRequest);
-
-//MESSAGE RESPONSE
-router.post('/:id/response', User.response);
-
 //DELETE
 router.delete('/:id', User.destroy);
 
