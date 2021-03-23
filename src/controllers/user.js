@@ -76,9 +76,6 @@ exports.updateGeoPoint = async function (req, res) {
     try {
         const id = req.params.id;
         const geoPoint = req.body
-        // console.log('geoPoint==========')
-        // console.log(geoPoint)
-        // console.log(id)
         
         const user = await User.findByIdAndUpdate(id, {$set: geoPoint}, {new: true});
         
@@ -106,10 +103,11 @@ exports.update = async function (req, res) {
         
         // replace the skills and rank into update data
         if (req.body.skills) {
-            let skill = req.body.skills;
-            let ranking = req.body.rank;
-        
-            for (let i = 0; i < req.body.skills.length; i++) {
+            let skill = JSON.parse(req.body.skills);
+            let ranking = JSON.parse(req.body.rank);
+
+            
+            for (let i = 0; i < JSON.parse(req.body.skills).length; i++) {
                 skills.push({
                     name: skill[i],
                     rank: Number(ranking[i])

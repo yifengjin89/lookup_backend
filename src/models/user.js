@@ -84,10 +84,10 @@ const UserSchema = new mongoose.Schema({
         ref: 'Message',
     }],
 
-    friendList: [{
-        id: String,
+    friends: [{
+        user_id: String,
         username: String,
-        image: String,
+        profileImage: String,
     }],
  
     isVerified: {
