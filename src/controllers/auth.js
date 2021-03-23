@@ -33,7 +33,7 @@ exports.login = async (req, res) => {
     try {
         const { email, password } = req.body;
 
-        const user = await User.findOne({ email }).populate({path:'messages', select: 'status from_userId from_username msgType from_profileImage createdAt'});;
+        const user = await User.findOne({ email }).populate({path:'messages'});
 
         if (!user) return res.status(401).json({msg: 'The email address ' + email + ' is not associated with any account. Double-check your email address and try again.'});
 
