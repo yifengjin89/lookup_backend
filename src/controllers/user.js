@@ -2,7 +2,6 @@ const User = require('../models/user');
 const { distanceInMBetweenEarthCoordinates, sendEmail} = require('../utils/index');
 const upload = require('../utils/multer');
 const cloudinary = require('../config/cloudinary');
-const user = require('../models/user');
 
 // @route GET admin/user
 // @desc Returns all users
