@@ -85,7 +85,7 @@ const UserSchema = new mongoose.Schema({
     }],
 
     friends: [{
-        user_id: String,
+        _id: String,
         username: String,
         profileImage: String,
     }],
