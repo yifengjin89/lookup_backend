@@ -2,6 +2,7 @@ const User = require('../models/user');
 const { distanceInMBetweenEarthCoordinates, sendEmail} = require('../utils/index');
 const upload = require('../utils/multer');
 const cloudinary = require('../config/cloudinary');
+const user = require('../models/user');
 
 // @route GET admin/user
 // @desc Returns all users
@@ -79,7 +80,7 @@ exports.updateGeoPoint = async function (req, res) {
         
         const user = await User.findByIdAndUpdate(id, {$set: geoPoint}, {new: true});
         
-        res.status(200).json({user, message: 'User has been updated'});
+        return res.status(200).json({user, message: 'User has been updated'});
 
     } catch (error) {
         res.status(500).json({message: error.message});
@@ -99,13 +100,12 @@ exports.update = async function (req, res) {
         console.log('req.body', req.body)
     
         //Make sure the passed id is that of the logged in user
-        if (userId.toString() !== id.toString()) return res.status(401).json({message: "Sorry, you don't have the permission to upd this data."});
+        if (userId.toString() !== id.toString()) return res.status(401).json({message: "Sorry, you don't have the permission to update this data."});
         
         // replace the skills and rank into update data
         if (req.body.skills) {
             let skill = JSON.parse(req.body.skills);
             let ranking = JSON.parse(req.body.rank);
-
             
             for (let i = 0; i < JSON.parse(req.body.skills).length; i++) {
                 skills.push({
@@ -138,7 +138,7 @@ exports.update = async function (req, res) {
         // update datebase
         const user_ = await User.findByIdAndUpdate(id, {$set: update}, {new: true});
 
-        return res.status(401).json({user: user_, message: 'User has been updated'});
+        return res.status(200).json({user: user_, message: 'User has been updated'});
 
     } catch (error) {
         res.status(500).json({message: error.message});
@@ -150,7 +150,7 @@ exports.search = async function (req, res) {
         const keyword = req.body.keyword;
         const method = req.body.method;
         const user_id = req.params.id
-        console.log('user_id', user_id)
+        
         // total 3 skills per user have
         const skills_length = 3;
         // {$regex: keyword, $options:'$i'}
@@ -166,15 +166,7 @@ exports.search = async function (req, res) {
         // let new_results = results.filter(item => item._id != user_id)
         // console.log('new result:' , new_results)
 
-
-        if(results.length === 0) {
-            return res.status(401).json({message: 'Not Matched'});
-        }
-        
-        for (let i = 0; i < results.length; i++) {
-            console.log(typeof(results[i].geoPoint[0]));
-        }
-        console.log('results++++', results)
+        if(results.length === 0) return res.status(400).json({message: 'Not Matched'});
         
         // return results by ranking desc order
         if (method == 'ranking') {
@@ -196,12 +188,15 @@ exports.search = async function (req, res) {
             })
 
             console.log('results_by_ranking', results_by_ranking)
-            res.status(200).json({results_by_ranking});
+            return res.status(200).json({results_by_ranking, message: 'Results by ranking'});
 
         // return results by distance in meters asc order
         } else {
             const user_geoPoint = await User.findById(user_id).select('geoPoint');
             console.log('user_geoPoint', user_geoPoint)
+            
+            if (user_geoPoint.geoPoint.length == 0) return res.status(400).json({message: 'Please Allow Location Service'});
+
             let user_lat = Number(user_geoPoint.geoPoint[0]);
             let user_lon = Number(user_geoPoint.geoPoint[1]);
             let distance = [];
@@ -221,9 +216,10 @@ exports.search = async function (req, res) {
         
             results_by_distance.sort((a, b) => {
                 return a.distance - b.distance;
-            })
+            });
+
             console.log('after sort results_by_distance', results_by_distance);
-            res.status(200).json({results_by_distance});
+            return res.status(200).json({results_by_distance, message: 'Result by distance'});
         }
 
     } catch (error) {

@@ -18,7 +18,7 @@ exports.sendRequest = async function (req, res) {
       // check the request is in the requested user's message box or not
       const exist_request = await Message.find({'from_userId': from_userId,  'request': request, 'status': 'Pending'});
 
-      if (exist_request.length != 0) return res.status(200).json({message: 'Already sent the Request, Please wait for the response'});
+      if (exist_request.length != 0) return res.status(400).json({message: 'Already sent the Request, Please wait for the response'});
 
       // otherwise, find user info
       const user = await User.findById(from_userId).select('username profileImage');
@@ -34,21 +34,12 @@ exports.sendRequest = async function (req, res) {
         // check the requested user is in the friend list or not;  
         const exist_friend = await User.findOne({'_id': from_userId, 'friends._id':to_userId});
 
-        console.log('exist', exist_request)
-        console.log('length', exist_request.length); 
-
-        if (exist_friend) return res.status(200).json({message: 'This user has already in your friend list !'});
+        if (exist_friend) return res.status(400).json({message: 'This user has already in your friend list !'});
 
         //  create friend request to database
         const reqMessage = await Message.create(message);
 
         const update = await User.findByIdAndUpdate(to_userId, {$push: {'messages': reqMessage._id}});
-
-        console.log('reqMessage ==========');
-        console.log(reqMessage);
-
-        console.log('update================');
-        console.log(update);
 
         // const user = await User.findById(id);
         return res.status(200).json({reqMessage, message: 'Friend Request has been sent !'});
@@ -76,8 +67,9 @@ exports.response = async function (req, res) {
       const response = req.body.response;
       const message_id = req.body.message_id;
 
+      // get message
       const message = await Message.findById(message_id);
-      console.log('message==============', message);
+
       const friend = {
           _id: message.from_userId,
           username: message.from_username,
@@ -86,16 +78,11 @@ exports.response = async function (req, res) {
       
       if (request == 'friend' && response == 'Accept') {
         const is_existed = await User.findById(userId, {'friends._id': message.from_userId});
-        
-        console.log('exist==========')
-        console.log(is_existed.friends);
-        if (is_existed.friends.length != 0) return res.status(200).json({message: 'This user has already in your friend list !'});
+      
+        if (is_existed.friends.length != 0) return res.status(400).json({message: 'This user has already in your friend list !'});
 
         // add to friend list
         const update = await User.findByIdAndUpdate(userId, {$push: {'friends': friend}});
-
-        console.log('update===============');
-        console.log(update)
 
         const user_info = {
             _id: update._id,
