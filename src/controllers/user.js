@@ -187,7 +187,7 @@ exports.search = async function (req, res) {
             })
 
             console.log('results_by_ranking', results_by_ranking)
-            return res.status(200).json({results_by_ranking, message: 'Results by ranking'});
+            return res.status(200).json({results: results_by_ranking, message: 'Results by ranking'});
 
         // return results by distance in meters asc order
         } else {
@@ -218,7 +218,7 @@ exports.search = async function (req, res) {
             });
 
             console.log('after sort results_by_distance', results_by_distance);
-            return res.status(200).json({results_by_distance, message: 'Result by distance'});
+            return res.status(200).json({results: results_by_distance, message: 'Result by distance'});
         }
 
     } catch (error) {
