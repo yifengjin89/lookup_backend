@@ -153,8 +153,7 @@ exports.search = async function (req, res) {
         // total 3 skills per user have
         const skills_length = 3;
         // {$regex: keyword, $options:'$i'}
-        const results = await User.find({'skills.name':{$regex: new RegExp(`^${keyword}$`), $options:'$i'}}).
-                                select ('_id username skills.name skills.rank geoPoint').lean();
+        const results = await User.find({'skills.name':{$regex: new RegExp(`^${keyword}$`), $options:'$i'}}).select ('_id username profileImage skills.name skills.rank geoPoint').lean();
 
         console.log('res： ', results)
         
