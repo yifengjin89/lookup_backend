@@ -89,6 +89,11 @@ const UserSchema = new mongoose.Schema({
         username: String,
         profileImage: String,
     }],
+
+    conversations: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Conversation',
+    }],
  
     isVerified: {
         type: Boolean,
