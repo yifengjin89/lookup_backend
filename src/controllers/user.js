@@ -225,6 +225,23 @@ exports.search = async function (req, res) {
     }
 };
 
+// @route Display PROFILE api/user/{id}/profile
+// @desc Display SEARCHED USER PROFILE
+// @access Public
+exports.profile = async function (req, res) {
+    try {
+        const id = req.body.userId;
+    
+        const user = await User.findById(id);
+
+        return res.status(200).json({user})
+
+    } catch (error) {
+        res.status(500).json({message: error.message});
+    }
+}
+
+
 // @route DELETE FRIEND api/user/{id}/deleteFriend
 // @desc Delete Friend
 // @access Public

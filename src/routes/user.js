@@ -31,6 +31,9 @@ router.put('/:id/updateGeoPoint', User.updateGeoPoint);
 //SEARCH
 router.post('/:id/search', User.search);
 
+// DISPLAY SEARCHED USER PROFILE
+router.post('/:id/profile', User.profile);
+
 //DELETE FRIEND
 router.put('/:id/deleteFriend', User.deleteFriend);
 
