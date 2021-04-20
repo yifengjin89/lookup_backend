@@ -1,9 +1,8 @@
 const User = require('../models/user');
 const Message = require('../models/message');
-const message = require('../models/message');
 
 // @route post api/user/{id}/sendFriendRequst
-// desc Send friend request
+// @desc Send friend request
 // @access Public
 exports.sendRequest = async function (req, res) {
   try {

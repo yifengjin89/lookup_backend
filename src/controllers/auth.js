@@ -43,7 +43,6 @@ exports.login = async (req, res) => {
         // Make sure the user has been verified
         if (!user.isVerified) return res.status(401).json({ type: 'not-verified', message: 'Your account has not been verified.' });        
 
-        // console.log(JSON.stringify(user));
         // Login successful, write token, and send back user
         res.status(200).json({token: user.generateJWT(), user: user});
     } catch (error) {
