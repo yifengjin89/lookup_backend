@@ -96,7 +96,6 @@ exports.update = async function (req, res) {
         const id = req.params.id;
         const userId = req.user._id;
         let skills = [];
-        console.log('req.body', req.body)
     
         //Make sure the passed id is that of the logged in user
         if (userId.toString() !== id.toString()) return res.status(401).json({message: "Sorry, you don't have the permission to update this data."});
@@ -217,7 +216,7 @@ exports.search = async function (req, res) {
             });
 
             console.log('after sort results_by_distance', results_by_distance);
-            return res.status(200).json({results: results_by_distance, message: 'Result by distance'});
+            return res.status(200).json({results: results_by_distance, message: 'Results by distance'});
         }
 
     } catch (error) {
