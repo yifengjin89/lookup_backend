@@ -247,7 +247,7 @@ exports.profile = async function (req, res) {
 exports.deleteFriend = async function (req, res) {
     try {
         const id = req.params.id;
-        const other_useId = req.body.userId;
+        const other_useId = req.body.other_userId;
 
         let curr_user = await User.findById(id).select('username profileImage');
         let other_user = await User.findById(other_useId).select('username profileImage');
