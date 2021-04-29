@@ -152,16 +152,11 @@ exports.search = async function (req, res) {
         // total 3 skills per user have
         const skills_length = 3;
         // {$regex: keyword, $options:'$i'}
-        const results = await User.find({'skills.name':{$regex: new RegExp(`^${keyword}$`), $options:'$i'}}).select ('_id username profileImage skills.name skills.rank geoPoint').lean();
+        const all_results = await User.find({'skills.name':{$regex: new RegExp(`^${keyword}$`), $options:'$i'}}).select ('_id username profileImage skills.name skills.rank geoPoint').lean();
 
-        console.log('res： ', results)
-        
-        //  distance display in meters
-        console.log('distance: ', distanceInMBetweenEarthCoordinates(37.75803, -122.39449, 37.75840, -122.38758))  
-
-        // new result
-        // let new_results = results.filter(item => item._id != user_id)
-        // console.log('new result:' , new_results)
+        // distance display in meters
+        // results filter user self
+        const results = all_results.filter(item => item._id != user_id);
 
         if(results.length === 0) return res.status(400).json({message: 'Not Matched'});
         
@@ -205,7 +200,7 @@ exports.search = async function (req, res) {
                 let other_user_lon = Number(results[i].geoPoint[1])
                 distance.push(distanceInMBetweenEarthCoordinates(user_lat, user_lon, other_user_lat, other_user_lon))
             }
-            console.log('dis', distance)
+            
             results.map(((item, index) => {
                 results_by_distance.push(Object.assign({}, item, {distance: distance[index]}))
             }))
@@ -254,8 +249,10 @@ exports.deleteFriend = async function (req, res) {
 
         const update = await User.findByIdAndUpdate(id, {$pull: {'friends': other_user}});
         const update_other_user = await User.findByIdAndUpdate(other_useId, {$pull: {'friends': curr_user}});
+        //  test to refresh page -- user
+        const user = await User.findById(id);
 
-        return res.status(200).json({update, update_other_user, message: 'Delete Friend Success'})
+        return res.status(200).json({user, update, update_other_user, message: 'Delete Friend Success'})
 
     } catch (error) {
         res.status(500).json({message: error.message});

@@ -96,7 +96,10 @@ exports.response = async function (req, res) {
         await Message.findByIdAndDelete(message_id);
 
         // remove messages ref
-        const user = await User.findByIdAndUpdate(userId, {$pull: {'messages': message_id}});
+        await User.findByIdAndUpdate(userId, {$pull: {'messages': message_id}});
+
+        // return user with all messages
+        const user = await User.findOne({'_id':userId}).populate({path:'messages'});
         
         return res.status(200).json({user, message: 'Friend has been added !'});
       }
@@ -106,9 +109,10 @@ exports.response = async function (req, res) {
         await Message.findByIdAndDelete(message_id);
 
         // remove messages ref
-        const user = await User.findByIdAndUpdate(userId, {$pull: {'messages': message_id}});
+        await User.findByIdAndUpdate(userId, {$pull: {'messages': message_id}});
         
-        // const user = User.findById(userId);
+        // return user with all messages
+        const user = await User.findOne({'_id':userId}).populate({path:'messages'});
 
         return res.status(200).json({user, message: 'Ignored friend request message'});
       }
