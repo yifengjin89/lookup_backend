@@ -17,7 +17,7 @@ exports.loadConversation = async function (req, res) {
 
         if (exist_conversation.length != 0) {
 
-            return res.status(400).json({ exist_conversation, message: 'conversation does exist' });
+            return res.status(200).json({ exist_conversation, message: 'conversation does exist' });
         }
 
         if (exist_conversation.length == 0) {
@@ -26,7 +26,7 @@ exports.loadConversation = async function (req, res) {
 
             if (exist_conversation.length != 0) {
 
-                return res.status(400).json({ exist_conversation, message: 'conversation does exist' });
+                return res.status(200).json({ exist_conversation, message: 'conversation does exist' });
             }
         }
 
