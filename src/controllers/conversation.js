@@ -73,7 +73,7 @@ exports.sendMessage = async function (req, res) {
         // date & time in YYYY-MM-DD format
         //date_now = year + "-" + month + "-" + date;
         date_now = Date();
-
+      
         const textMesgUserArr = {
             text: text,
             createdAt: date_now

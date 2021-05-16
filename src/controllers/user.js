@@ -96,7 +96,6 @@ exports.update = async function (req, res) {
         const id = req.params.id;
         const userId = req.user._id;
         let skills = [];
-        console.log('req.body', req.body)
     
         //Make sure the passed id is that of the logged in user
         if (userId.toString() !== id.toString()) return res.status(401).json({message: "Sorry, you don't have the permission to update this data."});
@@ -153,17 +152,11 @@ exports.search = async function (req, res) {
         // total 3 skills per user have
         const skills_length = 3;
         // {$regex: keyword, $options:'$i'}
-        const results = await User.find({'skills.name':{$regex: new RegExp(`^${keyword}$`), $options:'$i'}}).
-                                select ('_id username skills.name skills.rank geoPoint').lean();
+        const all_results = await User.find({'skills.name':{$regex: new RegExp(`^${keyword}$`), $options:'$i'}}).select ('_id username profileImage skills.name skills.rank geoPoint').lean();
 
-        console.log('res： ', results)
-        
-        //  distance display in meters
-        console.log('distance: ', distanceInMBetweenEarthCoordinates(37.75803, -122.39449, 37.75840, -122.38758))  
-
-        // new result
-        // let new_results = results.filter(item => item._id != user_id)
-        // console.log('new result:' , new_results)
+        // distance display in meters
+        // results filter user self
+        const results = all_results.filter(item => item._id != user_id);
 
         if(results.length === 0) return res.status(400).json({message: 'Not Matched'});
         
@@ -207,7 +200,7 @@ exports.search = async function (req, res) {
                 let other_user_lon = Number(results[i].geoPoint[1])
                 distance.push(distanceInMBetweenEarthCoordinates(user_lat, user_lon, other_user_lat, other_user_lon))
             }
-            console.log('dis', distance)
+            
             results.map(((item, index) => {
                 results_by_distance.push(Object.assign({}, item, {distance: distance[index]}))
             }))
@@ -218,7 +211,7 @@ exports.search = async function (req, res) {
             });
 
             console.log('after sort results_by_distance', results_by_distance);
-            return res.status(200).json({results: results_by_distance, message: 'Result by distance'});
+            return res.status(200).json({results: results_by_distance, message: 'Results by distance'});
         }
 
     } catch (error) {
@@ -226,21 +219,40 @@ exports.search = async function (req, res) {
     }
 };
 
+// @route Display PROFILE api/user/{id}/profile
+// @desc Display SEARCHED USER PROFILE
+// @access Public
+exports.profile = async function (req, res) {
+    try {
+        const id = req.body.userId;
+    
+        const user = await User.findById(id);
+
+        return res.status(200).json({user})
+
+    } catch (error) {
+        res.status(500).json({message: error.message});
+    }
+}
+
+
 // @route DELETE FRIEND api/user/{id}/deleteFriend
 // @desc Delete Friend
 // @access Public
 exports.deleteFriend = async function (req, res) {
     try {
         const id = req.params.id;
-        const other_useId = req.body.userId;
+        const other_useId = req.body.other_userId;
 
         let curr_user = await User.findById(id).select('username profileImage');
         let other_user = await User.findById(other_useId).select('username profileImage');
 
         const update = await User.findByIdAndUpdate(id, {$pull: {'friends': other_user}});
         const update_other_user = await User.findByIdAndUpdate(other_useId, {$pull: {'friends': curr_user}});
+        //  test to refresh page -- user
+        const user = await User.findById(id);
 
-        return res.status(200).json({update, update_other_user, message: 'Delete Friend Success'})
+        return res.status(200).json({user, update, update_other_user, message: 'Delete Friend Success'})
 
     } catch (error) {
         res.status(500).json({message: error.message});

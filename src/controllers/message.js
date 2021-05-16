@@ -1,9 +1,8 @@
 const User = require('../models/user');
 const Message = require('../models/message');
-const message = require('../models/message');
 
 // @route post api/user/{id}/sendFriendRequst
-// desc Send friend request
+// @desc Send friend request
 // @access Public
 exports.sendRequest = async function (req, res) {
   try {
@@ -77,9 +76,9 @@ exports.response = async function (req, res) {
       }
       
       if (request == 'friend' && response == 'Accept') {
-        const is_existed = await User.findById(userId, {'friends._id': message.from_userId});
-      
-        if (is_existed.friends.length != 0) return res.status(400).json({message: 'This user has already in your friend list !'});
+        const is_existed = await User.findOne({'_id':userId, 'friends._id': message.from_userId});
+       
+        if (is_existed) return res.status(400).json({message: 'This user has already in your friend list !'});
 
         // add to friend list
         const update = await User.findByIdAndUpdate(userId, {$push: {'friends': friend}});
@@ -97,7 +96,10 @@ exports.response = async function (req, res) {
         await Message.findByIdAndDelete(message_id);
 
         // remove messages ref
-        const user = await User.findByIdAndUpdate(userId, {$pull: {'messages': message_id}});
+        await User.findByIdAndUpdate(userId, {$pull: {'messages': message_id}});
+
+        // return user with all messages
+        const user = await User.findOne({'_id':userId}).populate({path:'messages'});
         
         return res.status(200).json({user, message: 'Friend has been added !'});
       }
@@ -107,9 +109,10 @@ exports.response = async function (req, res) {
         await Message.findByIdAndDelete(message_id);
 
         // remove messages ref
-        const user = await User.findByIdAndUpdate(userId, {$pull: {'messages': message_id}});
+        await User.findByIdAndUpdate(userId, {$pull: {'messages': message_id}});
         
-        // const user = User.findById(userId);
+        // return user with all messages
+        const user = await User.findOne({'_id':userId}).populate({path:'messages'});
 
         return res.status(200).json({user, message: 'Ignored friend request message'});
       }
