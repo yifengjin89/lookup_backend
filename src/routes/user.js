@@ -40,4 +40,8 @@ router.put('/:id/deleteFriend', User.deleteFriend);
 //DELETE
 router.delete('/:id', User.destroy);
 
+//UPDATE USER SKILLS_SCORE
+router.post('/:id/updateSkillScore', User.updateSkillScore);
+
+
 module.exports = router;
