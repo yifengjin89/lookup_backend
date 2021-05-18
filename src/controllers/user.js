@@ -86,6 +86,24 @@ exports.updateGeoPoint = async function (req, res) {
     }
 };
 
+/*exports.updateSkillScore = async function (req, res) {
+    try {
+        const id = req.params.id;
+        const skillName = req.body.skill_name
+        const skillScore = req.body.skill_score
+        const userId = req.body.other_user_id
+        
+        const user = await User.findByIdAndUpdate(userId, {$set: }, {new: true});
+            
+         )
+        
+        return res.status(200).json({user, message: 'User has been updated'});
+
+    } catch (error) {
+        res.status(500).json({message: error.message});
+    }
+};*/
+
 
 // @route PUT api/user/{id}
 // @desc Update user details
@@ -115,7 +133,7 @@ exports.update = async function (req, res) {
             delete update.rank;
             update['skills'] = skills
         }
-        
+        console.log(update);
         const user = await User.findByIdAndUpdate(id, {$set: update}, {new: true});
         
         // if there is no image, return success message
