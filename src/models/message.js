@@ -6,6 +6,12 @@ const MessageSchema = new mongoose.Schema({
       required: true,
       ref: 'User'
     },
+
+    to_userId: {
+      type: mongoose.Schema.Types.ObjectId,
+      required: true,
+      ref: 'User'
+    },
     
     from_username: {
       type: String,
