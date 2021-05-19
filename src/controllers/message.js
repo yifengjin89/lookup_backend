@@ -15,9 +15,9 @@ exports.sendRequest = async function (req, res) {
       const request = req.body.request;
 
       // check the request is in the requested user's message box or not
-      const exist_request = await Message.find({'from_userId': from_userId,  'request': request, 'status': 'Pending'});
+      const exist_request = await Message.findOne({'from_userId': from_userId, 'request': request, 'status': 'Pending'});
 
-      if (exist_request.length != 0) return res.status(400).json({message: 'Already sent the Request, Please wait for the response'});
+      if (exist_request) return res.status(400).json({message: 'Already sent the Request, Please wait for the response'});
 
       // otherwise, find user info
       const user = await User.findById(from_userId).select('username profileImage');
