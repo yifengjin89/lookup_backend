@@ -63,7 +63,7 @@ const UserSchema = new mongoose.Schema({
     skills: [{
         name: String,
         rank: Number,
-        count: {type: Number, default: 1},
+        count: Number,
         all_scores: Number
     }],
 

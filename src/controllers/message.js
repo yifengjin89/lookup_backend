@@ -65,10 +65,10 @@ exports.response = async function (req, res) {
       const request = req.body.request;
       const response = req.body.response;
       const message_id = req.body.message_id;
-
+      
       // get message
       const message = await Message.findById(message_id);
-
+      
       const friend = {
           _id: message.from_userId,
           username: message.from_username,
@@ -104,7 +104,7 @@ exports.response = async function (req, res) {
         return res.status(200).json({user, message: 'Friend has been added !'});
       }
 
-      if (request == 'friend' && response == 'Ignore') {
+      if (response == 'Ignore') {
         // remove message
         await Message.findByIdAndDelete(message_id);
 
@@ -114,10 +114,39 @@ exports.response = async function (req, res) {
         // return user with all messages
         const user = await User.findOne({'_id':userId}).populate({path:'messages'});
 
-        return res.status(200).json({user, message: 'Ignored friend request message'});
+        return res.status(200).json({user, message: 'Ignored request message'});
       }
+      // skill or rating request
+      if (request != 'friend' && response == 'Accept') { 
+        console.log('11from_userId', message.from_userId)
+        let skill_rank = ''
+        // rating: 'rating/html/9'
+        let request_ = request.split("/")
 
-      // if request != 'friend' && response == 'Accept'
+        // get skill name and rank if send by rating request
+        if (request_[0] == 'rating') {
+          request = request_[1]
+          skill_rank = Number(request_[2])
+        }
+        else {
+          let user = await User.findById(userId)
+
+          // get skill rank if send by skill request
+          for (let i = 0; i < user.skills.length; i++) {
+            if (user.skills[i].name == request) {
+                skill_rank = user.skills[i].rank
+              }
+          }
+        }
+        
+        // remove message
+        await Message.findByIdAndDelete(message_id);
+
+        // remove messages ref
+        await User.findByIdAndUpdate(userId, {$pull: {'messages': message_id}});
+        console.log(message.from_userId)
+        return res.status(200).json({user_id: userId, other_user_id:message.from_userId, request: request, rank: skill_rank, message: 'Skill request accepted'});
+    }
 
   } catch (error) {
       res.status(500).json({message: error.message});

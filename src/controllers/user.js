@@ -96,34 +96,13 @@ exports.updateSkillScore = async function (req, res) {
         const user = await User.findById(userId)
         for (let i = 0; i < user.skills.length; i++) {
             if (user.skills[i].name == skillName) {
-                user.skill[i].count++;
-                user.skills[i].rank = (user.skills[i].all_scores + Number(skillScore)) / user.skills[i].count
-                user.skill[i].all_scores = user.skills[i].all_scores + Number(skillScore)
+                user.skills[i].count = user.skills[i].count + 1;
+                user.skills[i].rank = Math.round((user.skills[i].all_scores + Number(skillScore)) / user.skills[i].count * 10) / 10
+                user.skills[i].all_scores = user.skills[i].all_scores + Number(skillScore)
                 user.save();
             }
          }
-
-        console.log("---------------------------USER", user);
             
-/*
-      "skills": Array [
-        Object {
-          "_id": "60a43753d062b60015ddf3b4",
-          "name": "Javascript ",
-          "rank": 7,
-        },
-        Object {
-          "_id": "60a43753d062b60015ddf3b5",
-          "name": "C++",
-          "rank": 8,
-        },
-        Object {
-          "_id": "60a43753d062b60015ddf3b6",
-          "name": "AI ",
-          "rank": 10,
-        },
-      ],
-         */
         return res.status(200).json({user, message: 'User has been updated'});
 
     } catch (error) {
