@@ -130,12 +130,12 @@ exports.response = async function (req, res) {
           skill_rank = Number(request_[2])
         }
         else {
-          let user = await User.findById(userId)
+          let user_1 = await User.findById(userId)
 
           // get skill rank if send by skill request
-          for (let i = 0; i < user.skills.length; i++) {
-            if (user.skills[i].name == request) {
-                skill_rank = user.skills[i].rank
+          for (let i = 0; i < user_1.skills.length; i++) {
+            if (user_1.skills[i].name == request) {
+                skill_rank = user_1.skills[i].rank
               }
           }
         }
