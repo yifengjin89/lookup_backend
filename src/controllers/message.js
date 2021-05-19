@@ -15,7 +15,7 @@ exports.sendRequest = async function (req, res) {
       const request = req.body.request;
 
       // check the request is in the requested user's message box or not
-      const exist_request = await Message.findOne({'from_userId': from_userId, 'request': request, 'status': 'Pending'});
+      const exist_request = await Message.findOne({'from_userId': from_userId, 'to_userId':to_userId, 'request': request});
 
       if (exist_request) return res.status(400).json({message: 'Already sent the Request, Please wait for the response'});
 
@@ -24,11 +24,12 @@ exports.sendRequest = async function (req, res) {
       
       const message = {
           from_userId: from_userId,
+          to_userId: to_userId,
           from_username: user.username, 
           request: request,
           from_profileImage: user.profileImage,
       }
-
+  
       if (request == 'friend') {
         // check the requested user is in the friend list or not;  
         const exist_friend = await User.findOne({'_id': from_userId, 'friends._id':to_userId});
@@ -37,7 +38,7 @@ exports.sendRequest = async function (req, res) {
 
         //  create friend request to database
         const reqMessage = await Message.create(message);
-
+        console.log('req', reqMessage)
         const update = await User.findByIdAndUpdate(to_userId, {$push: {'messages': reqMessage._id}});
 
         // const user = await User.findById(id);
@@ -118,7 +119,7 @@ exports.response = async function (req, res) {
       }
       // skill or rating request
       if (request != 'friend' && response == 'Accept') { 
-        console.log('11from_userId', message.from_userId)
+
         let skill_rank = ''
         // rating: 'rating/html/9'
         let request_ = request.split("/")
