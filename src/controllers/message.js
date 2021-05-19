@@ -145,8 +145,11 @@ exports.response = async function (req, res) {
 
         // remove messages ref
         await User.findByIdAndUpdate(userId, {$pull: {'messages': message_id}});
-        console.log(message.from_userId)
-        return res.status(200).json({user_id: userId, other_user_id:message.from_userId, request: request, rank: skill_rank, message: 'Skill request accepted'});
+        
+        // return user with all messages
+        const user_ = await User.findOne({'_id':userId}).populate({path:'messages'});
+
+        return res.status(200).json({user: user_, user_id: userId, other_user_id:message.from_userId, request: request, rank: skill_rank, message: 'Skill request accepted'});
     }
 
   } catch (error) {
