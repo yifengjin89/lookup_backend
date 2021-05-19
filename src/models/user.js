@@ -63,6 +63,8 @@ const UserSchema = new mongoose.Schema({
     skills: [{
         name: String,
         rank: Number,
+        count: Number,
+        all_scores: Number
     }],
 
     profileImage: {

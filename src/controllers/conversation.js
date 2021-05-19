@@ -17,7 +17,7 @@ exports.loadConversation = async function (req, res) {
 
         if (exist_conversation.length != 0) {
 
-            return res.status(400).json({ exist_conversation, message: 'conversation does exist' });
+            return res.status(200).json({ exist_conversation, message: 'conversation does exist' });
         }
 
         if (exist_conversation.length == 0) {
@@ -26,7 +26,7 @@ exports.loadConversation = async function (req, res) {
 
             if (exist_conversation.length != 0) {
 
-                return res.status(400).json({ exist_conversation, message: 'conversation does exist' });
+                return res.status(200).json({ exist_conversation, message: 'conversation does exist' });
             }
         }
 
@@ -71,9 +71,9 @@ exports.sendMessage = async function (req, res) {
         let year = date_ob.getFullYear();
 
         // date & time in YYYY-MM-DD format
-        date_now = year + "-" + month + "-" + date;
-        console.log('data', date_now)
-
+        //date_now = year + "-" + month + "-" + date;
+        date_now = Date();
+      
         const textMesgUserArr = {
             text: text,
             createdAt: date_now

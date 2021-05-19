@@ -86,6 +86,30 @@ exports.updateGeoPoint = async function (req, res) {
     }
 };
 
+exports.updateSkillScore = async function (req, res) {
+    try {
+        const id = req.params.id;
+        const skillName = req.body.skill_name
+        const skillScore = req.body.skill_score
+        const userId = req.body.other_user_id
+        
+        const user = await User.findById(userId)
+        for (let i = 0; i < user.skills.length; i++) {
+            if (user.skills[i].name == skillName) {
+                user.skills[i].count = user.skills[i].count + 1;
+                user.skills[i].rank = Math.round((user.skills[i].all_scores + Number(skillScore)) / user.skills[i].count * 10) / 10
+                user.skills[i].all_scores = user.skills[i].all_scores + Number(skillScore)
+                user.save();
+            }
+         }
+            
+        return res.status(200).json({user, message: 'User has been updated'});
+
+    } catch (error) {
+        res.status(500).json({message: error.message});
+    }
+};
+
 
 // @route PUT api/user/{id}
 // @desc Update user details
@@ -108,14 +132,16 @@ exports.update = async function (req, res) {
             for (let i = 0; i < JSON.parse(req.body.skills).length; i++) {
                 skills.push({
                     name: skill[i],
-                    rank: Number(ranking[i])
+                    rank: Number(ranking[i]),
+                    count: 1,
+                    all_scores: Number(ranking[i])
                 });
             }
             delete update.skills;
             delete update.rank;
             update['skills'] = skills
         }
-        
+        console.log(update);
         const user = await User.findByIdAndUpdate(id, {$set: update}, {new: true});
         
         // if there is no image, return success message
