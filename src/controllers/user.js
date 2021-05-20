@@ -184,7 +184,7 @@ exports.search = async function (req, res) {
         // results filter user self
         const results = all_results.filter(item => item._id != user_id);
 
-        if(results.length === 0) return res.status(400).json({message: 'Not Matched'});
+        if (results.length === 0) return res.status(400).json({message: 'Not Matched'});
         
         // return results by ranking desc order
         if (method == 'ranking') {
@@ -211,10 +211,9 @@ exports.search = async function (req, res) {
         // return results by distance in meters asc order
         } else {
             const user_geoPoint = await User.findById(user_id).select('geoPoint');
-            console.log('user_geoPoint', user_geoPoint)
             
-            if (user_geoPoint.geoPoint.length == 0) return res.status(400).json({message: 'Please Allow Location Service'});
-
+            if (!user_geoPoint.geoPoint) return res.status(400).json({message: 'Please Allow Location Service'}); 
+           
             let user_lat = Number(user_geoPoint.geoPoint[0]);
             let user_lon = Number(user_geoPoint.geoPoint[1]);
             let distance = [];
