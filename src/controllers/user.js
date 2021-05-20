@@ -201,41 +201,44 @@ exports.search = async function (req, res) {
                 results_by_ranking.push(Object.assign({}, item, {ranking: ranking[index]}))
             }))
 
+            // sorting the skill rank by dscending order
             results_by_ranking.sort((a, b) => {
                 return b.ranking - a.ranking;
             })
 
-            console.log('results_by_ranking', results_by_ranking)
             return res.status(200).json({results: results_by_ranking, message: 'Results by ranking'});
 
         // return results by distance in meters asc order
         } else {
             const user_geoPoint = await User.findById(user_id).select('geoPoint');
-            
+           
             if (!user_geoPoint.geoPoint) return res.status(400).json({message: 'Please Allow Location Service'}); 
            
             let user_lat = Number(user_geoPoint.geoPoint[0]);
             let user_lon = Number(user_geoPoint.geoPoint[1]);
             let distance = [];
             let results_by_distance = [];
-
+            
             // calculate distance between current user and other users
             for (let i = 0; i < results.length; i++) {
-                let other_user_lat = Number(results[i].geoPoint[0])
-                let other_user_lon = Number(results[i].geoPoint[1])
-                distance.push(distanceInMBetweenEarthCoordinates(user_lat, user_lon, other_user_lat, other_user_lon))
-            }
+                if (!results[i].geoPoint) continue
+                    let other_user_lat = Number(results[i].geoPoint[0])
+                    let other_user_lon = Number(results[i].geoPoint[1])
+                    distance.push(distanceInMBetweenEarthCoordinates(user_lat, user_lon, other_user_lat, other_user_lon))
+                }
+
+            // filter the result that the user who does not have geoPoint 
+            let filteted_results = results.filter(item => item.geoPoint != null);
             
-            results.map(((item, index) => {
+            filteted_results.map(((item, index) => {
                 results_by_distance.push(Object.assign({}, item, {distance: distance[index]}))
             }))
-            console.log('before sort results_by_distance', results_by_distance);
-        
+            
+            // sorting the distance by ascending order
             results_by_distance.sort((a, b) => {
                 return a.distance - b.distance;
             });
 
-            console.log('after sort results_by_distance', results_by_distance);
             return res.status(200).json({results: results_by_distance, message: 'Results by distance'});
         }
 
