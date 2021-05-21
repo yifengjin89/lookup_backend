@@ -38,11 +38,11 @@ exports.sendRequest = async function (req, res) {
 
         //  create friend request to database
         const reqMessage = await Message.create(message);
-        console.log('req', reqMessage)
-        const update = await User.findByIdAndUpdate(to_userId, {$push: {'messages': reqMessage._id}});
+        
+        // update other_user's info
+        const other_user = await User.findByIdAndUpdate(to_userId, {$push: {'messages': reqMessage._id}}, {new: true});
 
-        // const user = await User.findById(id);
-        return res.status(200).json({reqMessage, message: 'Friend Request has been sent !'});
+        return res.status(200).json({other_user: other_user, message: 'Friend Request has been sent !'});
       }
 
       // if request == 'skill.name' ...
