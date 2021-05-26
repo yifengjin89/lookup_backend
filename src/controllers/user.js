@@ -53,13 +53,13 @@ exports.store = async (req, res) => {
 };
 
 // @route GET api/user/{id}
-// @desc Returns a specific user
+// @desc Returns a specific user with all messages
 // @access Public
 exports.show = async function (req, res) {
     try {
         const id = req.params.id;
 
-        const user = await User.findById(id);
+        const user = await User.findById(id).populate({path:'messages'});
 
         if (!user) return res.status(401).json({message: 'User does not exist'});
 
@@ -69,8 +69,9 @@ exports.show = async function (req, res) {
     }
 };
 
+
 // @route PUT api/user/{id}/updateGeoPoint
-// desc Update user GeoPoint
+// @desc Update user GeoPoint
 // @access Public
 exports.updateGeoPoint = async function (req, res) {
     try {
@@ -86,6 +87,10 @@ exports.updateGeoPoint = async function (req, res) {
     }
 };
 
+
+// @route Post api/user/{id}/updateSkillScore
+// @desc Update user skill score
+// @access Public
 exports.updateSkillScore = async function (req, res) {
     try {
         const id = req.params.id;
@@ -141,7 +146,7 @@ exports.update = async function (req, res) {
             delete update.rank;
             update['skills'] = skills
         }
-        console.log(update);
+        
         const user = await User.findByIdAndUpdate(id, {$set: update}, {new: true});
         
         // if there is no image, return success message
@@ -169,6 +174,9 @@ exports.update = async function (req, res) {
     }
 };
 
+// @route Post api/user/{id}/search
+// @desc search functionality
+// @access Public
 exports.search = async function (req, res) {
     try {
         const keyword = req.body.keyword;
