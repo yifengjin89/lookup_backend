@@ -19,34 +19,6 @@ const ConversationSchema = new mongoose.Schema({
         text: String,
         createdAt: String
     }],
-
-    userOneHistory: [{
-
-        text: String,
-        createdAt: String
-    }],
-
-    userTwoHistory: [{
-
-        text: String,
-        createdAt: String
-    }]
-
-    
-
-
-   /* userOneMessages: {
-        type: String,
-    },
-
-    userTwoMessages: {
-        type: String,
-    },
-
-   /* messages: [{
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Chat_Message',
-    }], */
 });
 
 module.exports = mongoose.model('Conversations', ConversationSchema);
