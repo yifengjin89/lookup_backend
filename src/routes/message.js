@@ -9,6 +9,4 @@ router.post('/:id/sendRequest', Message.sendRequest);
 //MESSAGE RESPONSE
 router.post('/:id/response', Message.response);
 
-
-
 module.exports = router;
