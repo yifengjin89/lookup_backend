@@ -46,7 +46,7 @@ exports.loadConversation = async function (req, res) {
 // @access Public
 exports.getConversation = async function (req, res) {
     try {
-        const conversationId = req.body.conversationId
+        const conversationId = req.params.conversationId;
 
         const conversation = await Conversation.findById(conversationId);
 

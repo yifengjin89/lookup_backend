@@ -10,7 +10,7 @@ router.post('/:id/loadConversation', Conversation.loadConversation);
 router.post('/:id/sendMessage', Conversation.sendMessage);
 
 // get conversation by conversation
-router.get('/:id/getConversation', Conversation.getConversation);
+router.get('/:id/getConversation/:conversationId', Conversation.getConversation);
 
 
 module.exports = router;
