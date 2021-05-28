@@ -16,9 +16,8 @@ exports.loadConversation = async function (req, res) {
         let exist_conversation = await Conversation.findOne({ 'userOneId': from_userId, 'userTwoId': to_userId });
 
         if (exist_conversation) return res.status(200).json({ conversation: exist_conversation, message: 'conversation does exist' });
-        
         // check if exist conversation satuation 2: 'userOneId': to_userId, 'userTwoId': from_userId 
-        exist_conversation = await Conversation.find({ 'userOneId': to_userId, 'userTwoId': from_userId });
+        exist_conversation = await Conversation.findOne({ 'userOneId': to_userId, 'userTwoId': from_userId });
 
         if (exist_conversation) return res.status(200).json({ conversation: exist_conversation, message: 'conversation does exist' });
 
