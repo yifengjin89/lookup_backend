@@ -15,14 +15,10 @@ exports.loadConversation = async function (req, res) {
         // check if exist conversation satuation 1: 'userOneId': from_userId, 'userTwoId': to_userId 
         let exist_conversation = await Conversation.findOne({ 'userOneId': from_userId, 'userTwoId': to_userId });
 
-        console.log('1111', exist_conversation)
-
         if (exist_conversation) return res.status(200).json({ conversation: exist_conversation, message: 'conversation does exist' });
-        console.log('3333', exist_conversation)
         // check if exist conversation satuation 2: 'userOneId': to_userId, 'userTwoId': from_userId 
         exist_conversation = await Conversation.findOne({ 'userOneId': to_userId, 'userTwoId': from_userId });
 
-        console.log('2222', exist_conversation)
         if (exist_conversation) return res.status(200).json({ conversation: exist_conversation, message: 'conversation does exist' });
 
         // create new conversation
@@ -30,7 +26,7 @@ exports.loadConversation = async function (req, res) {
             userOneId: from_userId,
             userTwoId: to_userId,
         }
-        console.log('25555')
+
         const newConversation = await Conversation.create(conversation);
 
         // update user and friend info
